@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WC Serial Numbers Extended
  * Plugin URI:  https://www.pluginever.com/plugins/wocommerce-serial-numbers-pro/
- * Description: The plugin WC Serial Numbers Extended plugin will add a feature to copy the serial key or license key to the clipboard. It's only worked with the WC Serial numbers free or pro plugin.
+ * Description: The plugin "WC Serial Numbers Extended" will add a feature to copy the serial key or license key to the clipboard. It's only worked with the WC Serial numbers free or pro plugin.
  * Version:     1.0.0
  * Author:      PluginEver
  * Author URI:  http://pluginever.com
