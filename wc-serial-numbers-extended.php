@@ -37,7 +37,7 @@ if ( ! class_exists('WCSNEX' ) ) {
          * @since 1.0.0
          */
         public function __construct() {
-            add_filter( 'wc_serial_numbers_display_key_props_html', array( $this, 'control_key_props_html' ) );
+            add_filter( 'wc_serial_numbers_display_key_props_html', array( __CLASS__, 'control_key_props_html' ) );
             add_action( 'wp_footer', array( __CLASS__, 'footer_inline_code' ) );
         }
 
@@ -49,7 +49,7 @@ if ( ! class_exists('WCSNEX' ) ) {
          * @since 1.0.0
          * @return string $html
          */
-        public function control_key_props_html( $html ) {
+        public static function control_key_props_html( $html ) {
             $copy_btn_html = '<span id="copy_license_key">' . __( 'Copy Key', 'wc-serial-numbers-extended' ) . '</span>';
             $html = substr_replace( $html, $copy_btn_html, strripos($html, '</code>')+7, 0 );
             $html = str_replace("<code>","<code id='wcsn_license_key'>", $html );
@@ -84,16 +84,22 @@ if ( ! class_exists('WCSNEX' ) ) {
                     // Copy License key, on click event
                     var copyLicenseKey = function () {
                         $( '#copy_license_key' ).on( 'click', async function() {
+
                             let wcsn_license_key = $( '#wcsn_license_key' ).html();
-                            try {
-                                await navigator.clipboard.writeText( wcsn_license_key );
-                                $( '#copy_license_key' ).html( 'Copied' );
-                            } catch (err) {
-                                $( '#copy_license_key' ).html( 'Failed to copy the key' );
+                            if (window.isSecureContext && navigator.clipboard) {
+                                try {
+                                    await navigator.clipboard.writeText( wcsn_license_key );
+                                    $( '#copy_license_key' ).html( 'Copied' );
+                                } catch (err) {
+                                    $( '#copy_license_key' ).html( 'Failed to copy the key' );
+                                }
+                            } else {
+                                $( '#copy_license_key' ).html( 'Failed! Server isn\'t secured' );
                             }
                             setTimeout( function () {
                                 $( '#copy_license_key' ).html( 'Copy Key' );
                             }, 600)
+
                         });
                     }
                     // Dom Ready
