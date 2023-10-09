@@ -2,7 +2,7 @@
 /**
  * Plugin Name: WC Serial Numbers Extended
  * Plugin URI:  https://www.pluginever.com/plugins/wocommerce-serial-numbers-pro/
- * Description: The plugin "WC Serial Numbers Extended" will add a feature to copy the serial key or license key to the clipboard. It's only worked with the WC Serial numbers free or pro plugin.
+ * Description: The plugin "WC Serial Numbers Extended" will add a feature to copy the serial key or license key to the clipboard.
  * Version:     1.0.0
  * Author:      PluginEver
  * Author URI:  http://pluginever.com
@@ -50,7 +50,7 @@ if ( ! class_exists('WCSNEX' ) ) {
          * @return string $html
          */
         public static function control_key_props_html( $html ) {
-            $copy_btn_html = '<span id="copy_license_key">' . __( 'Copy Key', 'wc-serial-numbers-extended' ) . '</span>';
+            $copy_btn_html = '<span id="copy_license_key">' . __( 'Copy', 'wc-serial-numbers-extended' ) . '</span>';
             $html = substr_replace( $html, $copy_btn_html, strripos($html, '</code>')+7, 0 );
             $html = str_replace("<code>","<code id='wcsn_license_key'>", $html );
             return $html;
@@ -91,13 +91,13 @@ if ( ! class_exists('WCSNEX' ) ) {
                                     await navigator.clipboard.writeText( wcsn_license_key );
                                     $( '#copy_license_key' ).html( 'Copied' );
                                 } catch (err) {
-                                    $( '#copy_license_key' ).html( 'Failed to copy the key' );
+                                    $( '#copy_license_key' ).html( 'Failed to copy' );
                                 }
                             } else {
                                 $( '#copy_license_key' ).html( 'Failed! Server isn\'t secured' );
                             }
                             setTimeout( function () {
-                                $( '#copy_license_key' ).html( 'Copy Key' );
+                                $( '#copy_license_key' ).html( 'Copy' );
                             }, 600)
 
                         });
