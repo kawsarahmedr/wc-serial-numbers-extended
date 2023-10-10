@@ -3,7 +3,7 @@
  * Plugin Name: WC Serial Numbers Extended
  * Plugin URI:  https://www.pluginever.com/plugins/wocommerce-serial-numbers-pro/
  * Description: The plugin "WC Serial Numbers Extended" will add a feature to copy the serial key or license key to the clipboard.
- * Version:     1.0.0
+ * Version:     1.0.1
  * Author:      PluginEver
  * Author URI:  http://pluginever.com
  * License:     GPLv2+
@@ -37,8 +37,43 @@ if ( ! class_exists('WCSNEX' ) ) {
          * @since 1.0.0
          */
         public function __construct() {
+            add_action('init', array( $this, 'init' ) );
             add_filter( 'wc_serial_numbers_display_key_props_html', array( __CLASS__, 'control_key_props_html' ) );
             add_action( 'wp_footer', array( __CLASS__, 'footer_inline_code' ) );
+        }
+
+	    /**
+	     * Init
+	     *
+	     * @since 1.0.0
+	     * @return void
+	     */
+        public function init() {
+	        remove_action( 'woocommerce_order_details_after_order_table', 'woocommerce_order_again_button' );
+	        add_action( 'woocommerce_order_details_after_order_table', array( $this, 'order_again_button' ) );
+        }
+
+	    /**
+	     * Order again button on order details page
+	     *
+	     * @param object $order The order object
+	     *
+	     * @since 1.0.0
+	     * @return void
+	     */
+        public function order_again_button( $order ) {
+            ob_start();
+	        ?>
+            <p class="order-again wcsn-order-again">
+                <a href="<?php echo esc_url( wp_nonce_url( add_query_arg( 'order_again', $order->get_id(), wc_get_cart_url() ), 'woocommerce-order_again' ) ); ?>" class="button">
+                    <?php esc_html_e( 'Order again', 'wc-serial-numbers-extended' ); ?>
+                </a>
+                <a id="copy_license_key" class="button">
+                    <?php _e( 'Copy to Clipboard', 'wc-serial-numbers-extended' ); ?>
+                </a>
+            </p>
+            <?php
+            echo ob_get_clean();
         }
 
         /**
@@ -50,10 +85,7 @@ if ( ! class_exists('WCSNEX' ) ) {
          * @return string $html
          */
         public static function control_key_props_html( $html ) {
-            $copy_btn_html = '<span id="copy_license_key">' . __( 'Copy', 'wc-serial-numbers-extended' ) . '</span>';
-            $html = substr_replace( $html, $copy_btn_html, strripos($html, '</code>')+7, 0 );
-            $html = str_replace("<code>","<code id='wcsn_license_key'>", $html );
-            return $html;
+            return str_replace("<code>","<code class='wcsn_license_key'>", $html );
         }
 
         /**
@@ -66,26 +98,35 @@ if ( ! class_exists('WCSNEX' ) ) {
             ob_start();
             ?>
             <style>
+                .order-again {
+                    display: flex;
+                    justify-content: space-between;
+                }
                 #copy_license_key {
-                    background: #38A9FF;
-                    color: #fff;
-                    border-radius: 2px;
+                    /*background: #38A9FF;*/
+                    /*color: #fff;*/
                     margin-left: 10px;
-                    padding: 4px 10px;
-                    font-size: 14px;
                 }
                 #copy_license_key:hover{
                     cursor: pointer;
                     opacity: 0.9;
+                }
+                #copy_license_key::after{
+                    display: none;
                 }
             </style>
             <script>
                 (function ($) {
                     // Copy License key, on click event
                     var copyLicenseKey = function () {
-                        $( '#copy_license_key' ).on( 'click', async function() {
 
-                            let wcsn_license_key = $( '#wcsn_license_key' ).html();
+                        $( "#copy_license_key" ).on( "click", async function() {
+
+                            let wcsn_license_key = '';
+                            $( ".wcsn_license_key" ).each(function() {
+                                wcsn_license_key += $( this ).html() + ' ';
+                            });
+
                             if (window.isSecureContext && navigator.clipboard) {
                                 try {
                                     await navigator.clipboard.writeText( wcsn_license_key );
@@ -97,9 +138,8 @@ if ( ! class_exists('WCSNEX' ) ) {
                                 $( '#copy_license_key' ).html( 'Failed! Server isn\'t secured' );
                             }
                             setTimeout( function () {
-                                $( '#copy_license_key' ).html( 'Copy' );
-                            }, 600)
-
+                                $( '#copy_license_key' ).html( 'Copy to Clipboard' );
+                            }, 600 )
                         });
                     }
                     // Dom Ready
